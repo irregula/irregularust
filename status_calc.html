@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ステータス計算機</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',sans-serif;background:#f0eeea;padding:1.5rem;color:#1a1a1a}
+h1{font-size:18px;font-weight:600;margin-bottom:0.25rem}
+.subtitle{font-size:12px;color:#888;margin-bottom:1.5rem}
+.nav{margin-bottom:1rem}
+.nav a{font-size:12px;color:#888;text-decoration:none}
+
+.points-bar{background:#fff;border-radius:12px;border:1px solid #e0dedb;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;gap:1.5rem;flex-wrap:wrap}
+.pt-item{display:flex;flex-direction:column;gap:2px}
+.pt-label{font-size:11px;color:#888}
+.pt-val{font-size:20px;font-weight:600}
+.pt-main{color:#1a1a1a}
+.pt-sub{color:#3562b5}
+.pt-warn{color:#c93a3a}
+
+.section-title{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#999;margin:1.25rem 0 0.5rem}
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.main-card{background:#fff;border-radius:12px;border:1px solid #e0dedb;overflow:hidden}
+.main-header{padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.main-header-left{display:flex;align-items:center;gap:8px}
+.main-badge{font-size:12px;font-weight:700;padding:2px 10px;border-radius:5px}
+.main-title{font-size:13px;font-weight:600}
+.main-count{font-size:13px;font-weight:600;color:#1a1a1a}
+.btn-group{display:flex;gap:4px}
+.btn-plus{font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;border:none;cursor:pointer;transition:transform 0.1s}
+.btn-plus:active{transform:scale(0.95)}
+.btn-reset{font-size:10px;color:#aaa;background:none;border:none;cursor:pointer;padding:2px 4px}
+
+.str .main-header{background:#fff5f5;border-bottom:1px solid #fde8e8}
+.str .main-badge{background:#fde8e8;color:#c93a3a}
+.str .btn-plus{background:#c93a3a;color:#fff}
+.dex .main-header{background:#f0f4ff;border-bottom:1px solid #e8eefb}
+.dex .main-badge{background:#e8eefb;color:#3562b5}
+.dex .btn-plus{background:#3562b5;color:#fff}
+.vit .main-header{background:#fff8f0;border-bottom:1px solid #fdf0e3}
+.vit .main-badge{background:#fdf0e3;color:#c96e20}
+.vit .btn-plus{background:#c96e20;color:#fff}
+.int .main-header{background:#f0faf4;border-bottom:1px solid #e8f5ee}
+.int .main-badge{background:#e8f5ee;color:#2d8a52}
+.int .btn-plus{background:#2d8a52;color:#fff}
+
+.sub-list{padding:0.25rem 0}
+.sub-item{padding:0.5rem 1rem;border-bottom:1px solid #f5f4f0;display:flex;align-items:center;gap:6px}
+.sub-item:last-child{border-bottom:none}
+.sub-left{flex:1;display:flex;flex-direction:column;gap:1px}
+.sub-name{font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px}
+.auto-pill{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px}
+.str .auto-pill{background:#fde8e8;color:#c93a3a}
+.dex .auto-pill{background:#e8eefb;color:#3562b5}
+.vit .auto-pill{background:#fdf0e3;color:#c96e20}
+.int .auto-pill{background:#e8f5ee;color:#2d8a52}
+.sub-val{font-size:11px;color:#aaa}
+.sub-right{display:flex;align-items:center;gap:4px}
+.sub-pt{font-size:13px;font-weight:600;min-width:28px;text-align:right}
+.str .sub-pt{color:#c93a3a}
+.dex .sub-pt{color:#3562b5}
+.vit .sub-pt{color:#c96e20}
+.int .sub-pt{color:#2d8a52}
+.sub-btn-group{display:flex;gap:3px}
+.sub-btn{font-size:10px;font-weight:600;padding:3px 6px;border-radius:5px;border:none;cursor:pointer;transition:transform 0.1s;background:#f1efea;color:#555}
+.sub-btn:active{transform:scale(0.95)}
+.sub-btn:disabled{opacity:0.3;cursor:not-allowed}
+.sub-reset{font-size:10px;color:#ccc;background:none;border:none;cursor:pointer;padding:2px}
+
+.effects{background:#fff;border-radius:12px;border:1px solid #e0dedb;overflow:hidden;margin-top:1.25rem}
+.effects-header{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#999;padding:0.75rem 1rem;border-bottom:1px solid #f0eeea}
+.effects-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.effect-item{padding:0.6rem 1rem;border-bottom:1px solid #f5f4f0;border-right:1px solid #f5f4f0}
+.effect-item:nth-child(even){border-right:none}
+.effect-label{font-size:11px;color:#888;margin-bottom:2px}
+.effect-val{font-size:14px;font-weight:600;color:#1a1a1a}
+.effect-sub{font-size:10px;color:#aaa;margin-top:1px}
+
+.reset-all{width:100%;margin-top:1rem;padding:10px;background:#f1efea;color:#888;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600}
+.reset-all:hover{background:#e0dedb}
+
+@media(max-width:500px){.main-grid{grid-template-columns:1fr}.effects-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="nav"><a href="index.html">← ステータス一覧へ</a></div>
+<h1>ステータス計算機</h1>
+<p class="subtitle">メインステータスを振るとサブに自動付与。残りポイントでサブを自由に強化。</p>
+
+<div class="points-bar">
+  <div class="pt-item"><div class="pt-label">メイン残りポイント</div><div class="pt-val pt-main" id="mainPt">100</div></div>
+  <div class="pt-item"><div class="pt-label">サブ残りポイント</div><div class="pt-val pt-sub" id="subPt">0</div></div>
+  <div class="pt-item"><div class="pt-label">合計振り済み</div><div class="pt-val" id="totalSpent">0 / 100</div></div>
+</div>
+
+<div class="section-title">メインステータス</div>
+<div class="main-grid">
+
+  <!-- STR -->
+  <div class="main-card str">
+    <div class="main-header">
+      <div class="main-header-left">
+        <span class="main-badge">STR</span>
+        <span class="main-title">力</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="main-count"><span id="str_count">0</span>pt</span>
+        <div class="btn-group">
+          <button class="btn-plus" onclick="addMain('str',1)">+1</button>
+          <button class="btn-plus" onclick="addMain('str',5)">+5</button>
+          <button class="btn-plus" onclick="addMain('str',10)">+10</button>
+        </div>
+        <button class="btn-reset" onclick="resetMain('str')">✕</button>
+      </div>
+    </div>
+    <div class="sub-list">
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">ATK <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="atk_eff">ダメージ +0</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="atk_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('atk',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('atk',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('atk',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('atk')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">STA <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="sta_eff">最大スタミナ +0</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="sta_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('sta',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('sta',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('sta',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('sta')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">IMP</div>
+          <div class="sub-val" id="imp_eff">ダメージ ×1.000</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="imp_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('imp',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('imp',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('imp',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('imp')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">ACC</div>
+          <div class="sub-val" id="acc_eff">相手EVD -0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="acc_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('acc',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('acc',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('acc',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('acc')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEX -->
+  <div class="main-card dex">
+    <div class="main-header">
+      <div class="main-header-left">
+        <span class="main-badge">DEX</span>
+        <span class="main-title">敏捷</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="main-count"><span id="dex_count">0</span>pt</span>
+        <div class="btn-group">
+          <button class="btn-plus" onclick="addMain('dex',1)">+1</button>
+          <button class="btn-plus" onclick="addMain('dex',5)">+5</button>
+          <button class="btn-plus" onclick="addMain('dex',10)">+10</button>
+        </div>
+        <button class="btn-reset" onclick="resetMain('dex')">✕</button>
+      </div>
+    </div>
+    <div class="sub-list">
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">CRIT <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="crit_eff">クリ率 10.0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="crit_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('crit',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('crit',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('crit',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('crit')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">TEN <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="ten_eff">スーパー効果 +0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="ten_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('ten',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('ten',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('ten',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('ten')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">PEN</div>
+          <div class="sub-val" id="pen_eff">DEF無効化 0 / シールドダメ +0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="pen_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('pen',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('pen',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('pen',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('pen')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">EVD</div>
+          <div class="sub-val" id="evd_eff">回避率 0.0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="evd_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('evd',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('evd',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('evd',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('evd')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIT -->
+  <div class="main-card vit">
+    <div class="main-header">
+      <div class="main-header-left">
+        <span class="main-badge">VIT</span>
+        <span class="main-title">生命力</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="main-count"><span id="vit_count">0</span>pt</span>
+        <div class="btn-group">
+          <button class="btn-plus" onclick="addMain('vit',1)">+1</button>
+          <button class="btn-plus" onclick="addMain('vit',5)">+5</button>
+          <button class="btn-plus" onclick="addMain('vit',10)">+10</button>
+        </div>
+        <button class="btn-reset" onclick="resetMain('vit')">✕</button>
+      </div>
+    </div>
+    <div class="sub-list">
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">SLD <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="sld_eff">最大シールド +0</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="sld_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('sld',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('sld',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('sld',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('sld')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">DEF <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="def_eff">ダメージ軽減 0（上限40%）</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="def_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('def',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('def',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('def',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('def')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">DET</div>
+          <div class="sub-val" id="det_eff">PEN無効DEF 0</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="det_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('det',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('det',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('det',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('det')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">PEVD</div>
+          <div class="sub-val" id="pevd_eff">完全回避率 0.0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="pevd_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('pevd',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('pevd',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('pevd',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('pevd')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INT -->
+  <div class="main-card int">
+    <div class="main-header">
+      <div class="main-header-left">
+        <span class="main-badge">INT</span>
+        <span class="main-title">知性</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="main-count"><span id="int_count">0</span>pt</span>
+        <div class="btn-group">
+          <button class="btn-plus" onclick="addMain('int',1)">+1</button>
+          <button class="btn-plus" onclick="addMain('int',5)">+5</button>
+          <button class="btn-plus" onclick="addMain('int',10)">+10</button>
+        </div>
+        <button class="btn-reset" onclick="resetMain('int')">✕</button>
+      </div>
+    </div>
+    <div class="sub-list">
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">CATK <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="catk_eff">クリダメ +25.0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="catk_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('catk',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('catk',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('catk',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('catk')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">REC <span class="auto-pill">自動</span></div>
+          <div class="sub-val" id="rec_eff">5秒ごとに +0 回復</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="rec_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('rec',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('rec',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('rec',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('rec')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">MND</div>
+          <div class="sub-val" id="mnd_eff">状態異常・回復量 +0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="mnd_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('mnd',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('mnd',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('mnd',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('mnd')">✕</button>
+        </div>
+      </div>
+      <div class="sub-item">
+        <div class="sub-left">
+          <div class="sub-name">PIE</div>
+          <div class="sub-val" id="pie_eff">CD短縮 0.0%</div>
+        </div>
+        <div class="sub-right">
+          <span class="sub-pt" id="pie_pt">0</span>
+          <div class="sub-btn-group">
+            <button class="sub-btn" onclick="addSub('pie',1)">+1</button>
+            <button class="sub-btn" onclick="addSub('pie',5)">+5</button>
+            <button class="sub-btn" onclick="addSub('pie',10)">+10</button>
+          </div>
+          <button class="sub-reset" onclick="resetSub('pie')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="effects">
+  <div class="effects-header">合計効果量</div>
+  <div class="effects-grid" id="effectsGrid"></div>
+</div>
+
+<button class="reset-all" onclick="resetAll()">全てリセット</button>
+
+<div style="margin-top:1rem;text-align:center">
+  <a href="calc.html" style="font-size:12px;color:#888;text-decoration:none">ダメージ計算機へ →</a>
+</div>
+
+<script>
+const MAIN_MAX = 100;
+const SUB_MAX = 100;
+const AUTO = {str:['atk','sta'],dex:['crit','ten'],vit:['sld','def'],int:['catk','rec']};
+const MAIN_KEYS = ['str','dex','vit','int'];
+
+const main = {str:0,dex:0,vit:0,int:0};
+const sub  = {atk:0,sta:0,imp:0,acc:0,crit:0,ten:0,pen:0,evd:0,sld:0,def:0,det:0,pevd:0,catk:0,rec:0,mnd:0,pie:0};
+const autoSub = {atk:0,sta:0,crit:0,ten:0,sld:0,def:0,catk:0,rec:0};
+
+function mainUsed(){ return MAIN_KEYS.reduce((s,k)=>s+main[k],0); }
+function subUsed(){
+  const manual = Object.keys(sub).reduce((s,k)=>s+sub[k],0);
+  return manual;
+}
+function subAvailable(){ return mainUsed() - subUsed(); }
+
+function addMain(key, n){
+  const rem = MAIN_MAX - mainUsed();
+  const add = Math.min(n, rem);
+  if(add<=0) return;
+  main[key] += add;
+  AUTO[key].forEach(sk=>{
+    const autoAdd = Math.min(add, SUB_MAX - autoSub[sk] - sub[sk]);
+    if(autoAdd>0) autoSub[sk] += autoAdd;
+  });
+  update();
+}
+
+function resetMain(key){
+  AUTO[key].forEach(sk=>{ autoSub[sk]=0; });
+  main[key]=0;
+  update();
+}
+
+function addSub(key, n){
+  const rem = subAvailable();
+  const capRem = SUB_MAX - sub[key] - (autoSub[key]||0);
+  const add = Math.min(n, rem, capRem);
+  if(add<=0) return;
+  sub[key] += add;
+  update();
+}
+
+function resetSub(key){
+  sub[key]=0;
+  update();
+}
+
+function resetAll(){
+  MAIN_KEYS.forEach(k=>main[k]=0);
+  Object.keys(sub).forEach(k=>sub[k]=0);
+  Object.keys(autoSub).forEach(k=>autoSub[k]=0);
+  update();
+}
+
+function total(key){ return Math.min((autoSub[key]||0)+sub[key], SUB_MAX); }
+
+function update(){
+  const used = mainUsed();
+  const subRem = subAvailable();
+
+  document.getElementById('mainPt').textContent = MAIN_MAX - used;
+  document.getElementById('subPt').textContent = subRem;
+  document.getElementById('subPt').style.color = subRem<0 ? '#c93a3a' : '#3562b5';
+  document.getElementById('totalSpent').textContent = used + ' / ' + MAIN_MAX;
+
+  MAIN_KEYS.forEach(k=>{
+    document.getElementById(k+'_count').textContent = main[k];
+  });
+
+  const effects = {
+    atk: total('atk'), sta: total('sta'), imp: total('imp'), acc: total('acc'),
+    crit: total('crit'), ten: total('ten'), pen: total('pen'), evd: total('evd'),
+    sld: total('sld'), def: total('def'), det: total('det'), pevd: total('pevd'),
+    catk: total('catk'), rec: total('rec'), mnd: total('mnd'), pie: total('pie')
+  };
+
+  const fmt = (k,v) => {
+    document.getElementById(k+'_pt').textContent = v;
+  };
+  Object.keys(effects).forEach(k=>fmt(k,effects[k]));
+
+  document.getElementById('atk_eff').textContent  = `ダメージ +${(effects.atk*0.15).toFixed(2)}`;
+  document.getElementById('sta_eff').textContent  = `最大スタミナ +${effects.sta}`;
+  document.getElementById('imp_eff').textContent  = `ダメージ ×${(1+effects.imp*0.003).toFixed(3)}`;
+  document.getElementById('acc_eff').textContent  = `相手EVD -${(effects.acc*0.5).toFixed(1)}%`;
+  document.getElementById('crit_eff').textContent = `クリ率 ${Math.min(10+effects.crit*0.5,100).toFixed(1)}%`;
+  document.getElementById('ten_eff').textContent  = `スーパー効果 +${effects.ten}%`;
+  document.getElementById('pen_eff').textContent  = `DEF無効化 ${effects.pen} / シールドダメ +${effects.pen*2}%`;
+  document.getElementById('evd_eff').textContent  = `回避率 ${Math.min(effects.evd*0.6,60).toFixed(1)}%`;
+  document.getElementById('sld_eff').textContent  = `最大シールド +${effects.sld*3}`;
+  document.getElementById('def_eff').textContent  = `ダメージ軽減 ${(effects.def*1.5).toFixed(0)}（上限40%）`;
+  document.getElementById('det_eff').textContent  = `PEN無効DEF ${effects.det}`;
+  document.getElementById('pevd_eff').textContent = `完全回避率 ${Math.min(effects.pevd*0.3,30).toFixed(1)}%`;
+  document.getElementById('catk_eff').textContent = `クリダメ +${(25+effects.catk*0.4).toFixed(1)}%`;
+  document.getElementById('rec_eff').textContent  = `5秒ごとに +${Math.floor(effects.rec*0.5)} 回復`;
+  document.getElementById('mnd_eff').textContent  = `状態異常・回復量 +${effects.mnd*2}%`;
+  document.getElementById('pie_eff').textContent  = `CD短縮 ${(effects.pie*0.5).toFixed(1)}%`;
+
+  document.getElementById('effectsGrid').innerHTML = [
+    ['ATK', `ダメージ +${(effects.atk*0.15).toFixed(2)}`,''],
+    ['IMP', `ダメージ ×${(1+effects.imp*0.003).toFixed(3)}`,''],
+    ['CRIT', `クリ率 ${Math.min(10+effects.crit*0.5,100).toFixed(1)}%`,''],
+    ['CATK', `クリダメ +${(25+effects.catk*0.4).toFixed(1)}%`,''],
+    ['TEN', `スーパー効果 +${effects.ten}%`,''],
+    ['PEN', `DEF無効化 ${effects.pen}`,''],
+    ['EVD', `回避率 ${Math.min(effects.evd*0.6,60).toFixed(1)}%`,''],
+    ['PEVD', `完全回避率 ${Math.min(effects.pevd*0.3,30).toFixed(1)}%`,''],
+    ['ACC', `相手EVD -${(effects.acc*0.5).toFixed(1)}%`,''],
+    ['DEF', `軽減 ${(effects.def*1.5).toFixed(0)}（上限40%）`,''],
+    ['DET', `PEN無効DEF ${effects.det}`,''],
+    ['SLD', `最大シールド +${effects.sld*3}`,''],
+    ['REC', `5秒ごとに +${Math.floor(effects.rec*0.5)} 回復`,''],
+    ['MND', `状態異常・回復 +${effects.mnd*2}%`,''],
+    ['PIE', `CD短縮 ${(effects.pie*0.5).toFixed(1)}%`,''],
+    ['STA', `最大スタミナ +${effects.sta}`,''],
+  ].map(([label,val])=>`
+    <div class="effect-item">
+      <div class="effect-label">${label}</div>
+      <div class="effect-val">${val}</div>
+    </div>
+  `).join('');
+}
+
+update();
+</script>
+</body>
+</html>
