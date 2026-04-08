@@ -149,11 +149,12 @@ h1{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:0.25rem}
 
       <div class="sub-item">
         <div class="sub-header">
-          <span class="sub-badge">ACC</span>
-          <span class="sub-name">命中率</span>
+          <span class="sub-badge">PEN</span>
+          <span class="sub-name">貫通力</span>
         </div>
-        <div class="sub-desc">相手の回避率を下げる</div>
-        <div class="formula">相手EVD減少 = ACC × 0.5%</div>
+        <div class="sub-desc">相手のDEFを無効化し、シールドへのダメージを増加させる</div>
+        <div class="formula">DEF無効化量 = PEN × 1</div>
+        <div class="formula" style="margin-top:3px">シールドダメージ = PEN × 2%</div>
       </div>
 
     </div>
@@ -192,12 +193,11 @@ h1{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:0.25rem}
 
       <div class="sub-item">
         <div class="sub-header">
-          <span class="sub-badge">PEN</span>
-          <span class="sub-name">貫通力</span>
+          <span class="sub-badge">PEVD</span>
+          <span class="sub-name">完全回避率</span>
         </div>
-        <div class="sub-desc">相手のDEFを無効化し、シールドへのダメージを増加させる</div>
-        <div class="formula">DEF無効化量 = PEN × 1</div>
-        <div class="formula" style="margin-top:3px">シールドダメージ = PEN × 2%</div>
+        <div class="sub-desc">ダッシュ中に確率で攻撃を0ダメージにする</div>
+        <div class="formula">完全回避率 = PEVD × 0.3%　※上限30%</div>
       </div>
 
       <div class="sub-item">
@@ -254,11 +254,11 @@ h1{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:0.25rem}
 
       <div class="sub-item">
         <div class="sub-header">
-          <span class="sub-badge">PEVD</span>
-          <span class="sub-name">完全回避率</span>
+          <span class="sub-badge">MND</span>
+          <span class="sub-name">精神力</span>
         </div>
-        <div class="sub-desc">ダッシュ中に確率で攻撃を0ダメージにする</div>
-        <div class="formula">完全回避率 = PEVD × 0.3%　※上限30%</div>
+        <div class="sub-desc">状態異常ダメージと自動回復以外の回復量を強化する</div>
+        <div class="formula">状態異常ダメージ・回復量 + (MND × 2%)</div>
       </div>
 
     </div>
@@ -297,20 +297,20 @@ h1{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:0.25rem}
 
       <div class="sub-item">
         <div class="sub-header">
-          <span class="sub-badge">MND</span>
-          <span class="sub-name">精神力</span>
-        </div>
-        <div class="sub-desc">状態異常ダメージと自動回復以外の回復量を強化する</div>
-        <div class="formula">状態異常ダメージ・回復量 + (MND × 2%)</div>
-      </div>
-
-      <div class="sub-item">
-        <div class="sub-header">
           <span class="sub-badge">PIE</span>
           <span class="sub-name">信仰心</span>
         </div>
         <div class="sub-desc">スキル・スーパーのクールダウンを短縮する</div>
         <div class="formula">CD × (1 − PIE × 0.005)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">ACC</span>
+          <span class="sub-name">命中率</span>
+        </div>
+        <div class="sub-desc">相手の回避率を下げる</div>
+        <div class="formula">相手EVD減少 = ACC × 0.5%</div>
       </div>
 
     </div>
