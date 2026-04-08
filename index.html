@@ -3,191 +3,324 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ダメージ計算機</title>
+<title>ステータス一覧</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Helvetica Neue',sans-serif;background:#f0eeea;padding:1.5rem;color:#1a1a1a}
-h1{font-size:18px;font-weight:600;margin-bottom:0.25rem}
-.subtitle{font-size:12px;color:#888;margin-bottom:1.5rem}
-.section-title{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#999;margin:1.25rem 0 0.5rem}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.field{display:flex;flex-direction:column;gap:4px}
-.field label{font-size:12px;color:#555;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.slider-row{display:flex;align-items:center;gap:8px;margin-top:2px}
-.slider-row input[type=range]{flex:1;accent-color:#888}
-.slider-row input[type=number]{width:56px;padding:5px 7px;font-size:12px;border:1px solid #d3d1c7;border-radius:6px;background:#fff;color:#1a1a1a;-moz-appearance:textfield;text-align:center}
-.slider-row input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
-.slider-row input[type=number]:focus{outline:none;border-color:#888}
-.divider{border:none;border-top:1px solid #d3d1c7;margin:1.25rem 0}
-.badge{font-size:10px;padding:1px 5px;border-radius:4px;font-weight:600}
-.badge-str{background:#fde8e8;color:#c93a3a}
-.badge-dex{background:#e8eefb;color:#3562b5}
-.badge-vit{background:#fdf0e3;color:#c96e20}
-.badge-int{background:#e8f5ee;color:#2d8a52}
-.results{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:1rem}
-.metric{background:#fff;border-radius:10px;padding:0.875rem 1rem;border:1px solid #e0dedb}
-.metric-label{font-size:11px;color:#888;margin-bottom:4px}
-.metric-val{font-size:22px;font-weight:600;color:#1a1a1a}
-.metric-sub{font-size:11px;color:#aaa;margin-top:2px}
-.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:1.5rem}
-button{padding:14px;font-size:14px;font-weight:600;border-radius:10px;border:none;cursor:pointer;transition:transform 0.1s}
-button:active{transform:scale(0.97)}
-.btn-atk{background:#c93a3a;color:#fff}
-.btn-10{background:#1a1a1a;color:#fff}
-.log{margin-top:1rem;background:#fff;border-radius:10px;border:1px solid #e0dedb;overflow:hidden}
-.log-header{font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#999;padding:0.75rem 1rem;border-bottom:1px solid #f0eeea;display:flex;justify-content:space-between;align-items:center}
-.log-clear{font-size:11px;color:#aaa;cursor:pointer;text-decoration:underline;font-weight:400;letter-spacing:0}
-.log-body{max-height:300px;overflow-y:auto}
-.log-row{display:flex;align-items:center;gap:8px;padding:6px 1rem;font-size:12px;border-bottom:1px solid #f5f4f0}
-.log-row:last-child{border-bottom:none}
-.log-num{color:#aaa;min-width:22px;font-size:11px}
-.log-dmg{font-weight:600;font-size:14px;min-width:48px}
-.log-tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600}
-.tag-crit{background:#fdf0e3;color:#c96e20}
-.tag-evade{background:#e8f5ee;color:#2d8a52}
-.tag-hit{background:#f1efea;color:#888}
-.log-detail{font-size:11px;color:#aaa;margin-left:auto}
-.log-summary{padding:0.75rem 1rem;border-top:1px solid #f0eeea;font-size:12px;color:#555;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.log-summary span{color:#1a1a1a;font-weight:600;display:block;font-size:15px;margin-top:2px}
-@media(max-width:500px){.grid3{grid-template-columns:1fr 1fr}}
+body{font-family:'Helvetica Neue',sans-serif;background:#f0eeea;padding:2rem}
+h1{font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:0.25rem}
+.subtitle{font-size:13px;color:#888;margin-bottom:1.5rem}
+
+/* 仕様説明 */
+.rule-box{background:#fff;border-radius:14px;padding:1.25rem 1.5rem;border:1px solid rgba(0,0,0,0.07);margin-bottom:2rem}
+.rule-title{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:10px}
+.rule-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.rule-num{width:20px;height:20px;border-radius:50%;background:#1a1a1a;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rule-text{font-size:12px;color:#555;line-height:1.6}
+.rule-text strong{color:#1a1a1a}
+.legend{display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid #f0eeea}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#888}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* メイングリッド */
+.main-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+
+/* メインカード */
+.main-card{border-radius:14px;border:1px solid rgba(0,0,0,0.07);overflow:hidden}
+.main-header{padding:1rem 1.25rem 0.75rem;position:relative}
+.main-header::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.str .main-header::before{background:linear-gradient(90deg,#e05555,#c93a3a)}
+.dex .main-header::before{background:linear-gradient(90deg,#4a7fd4,#3562b5)}
+.vit .main-header::before{background:linear-gradient(90deg,#e08a3a,#c96e20)}
+.int .main-header::before{background:linear-gradient(90deg,#4aaa6e,#2d8a52)}
+.str .main-header{background:#fff5f5}
+.dex .main-header{background:#f0f4ff}
+.vit .main-header{background:#fff8f0}
+.int .main-header{background:#f0faf4}
+.main-top{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.main-badge{font-size:13px;font-weight:700;padding:3px 12px;border-radius:6px}
+.str .main-badge{background:#fde8e8;color:#c93a3a}
+.dex .main-badge{background:#e8eefb;color:#3562b5}
+.vit .main-badge{background:#fdf0e3;color:#c96e20}
+.int .main-badge{background:#e8f5ee;color:#2d8a52}
+.main-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.main-desc{font-size:11px;color:#999;margin-top:2px}
+
+/* サブリスト */
+.sub-list{background:#fff;padding:0.5rem 0}
+.sub-item{padding:0.65rem 1.25rem;border-bottom:1px solid #f5f4f0}
+.sub-item:last-child{border-bottom:none}
+.sub-header{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.sub-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;letter-spacing:0.03em}
+.str .sub-badge{background:#fde8e8;color:#c93a3a}
+.dex .sub-badge{background:#e8eefb;color:#3562b5}
+.vit .sub-badge{background:#fdf0e3;color:#c96e20}
+.int .sub-badge{background:#e8f5ee;color:#2d8a52}
+.sub-name{font-size:13px;font-weight:600;color:#1a1a1a}
+.auto-pill{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:2px}
+.str .auto-pill{background:#fde8e8;color:#c93a3a}
+.dex .auto-pill{background:#e8eefb;color:#3562b5}
+.vit .auto-pill{background:#fdf0e3;color:#c96e20}
+.int .auto-pill{background:#e8f5ee;color:#2d8a52}
+.sub-desc{font-size:11px;margin-bottom:4px}
+.str .sub-desc{color:#c93a3a}
+.dex .sub-desc{color:#3562b5}
+.vit .sub-desc{color:#c96e20}
+.int .sub-desc{color:#2d8a52}
+.str .sub-desc-auto{color:#c93a3a}
+.dex .sub-desc-auto{color:#3562b5}
+.vit .sub-desc-auto{color:#c96e20}
+.int .sub-desc-auto{color:#2d8a52}
+.formula{font-family:'Courier New',monospace;font-size:11px;background:#f7f6f3;padding:4px 9px;border-radius:5px;color:#333;line-height:1.5;margin-top:2px;display:inline-block}
+.divider{border:none;border-top:1px solid #f0eeea;margin:6px 0}
+.cond{font-size:11px;color:#888;padding:2px 0 2px 8px;border-left:2px solid #e0dedb;margin:3px 0;line-height:1.5}
 </style>
 </head>
 <body>
 
-<h1>ダメージ計算機</h1>
-<p class="subtitle">ステータスを入力して最終ダメージを計算・シミュレート</p>
+<h1>ステータス一覧</h1>
+<p class="subtitle">レベル上限：100　サブステータス上限：100pt</p>
 
-<div class="section-title">基本設定</div>
-<div class="grid2">
-  <div class="field"><label>素ダメージ</label><div class="slider-row"><input type="range" id="baseDmg_s" min="0" max="500" value="150" step="1"><input type="number" id="baseDmg" value="150" min="0" max="500"></div></div>
-  <div class="field"><label>全体バフ %</label><div class="slider-row"><input type="range" id="globalBuf_s" min="0" max="100" value="0" step="1"><input type="number" id="globalBuf" value="0" min="0" max="100"></div></div>
-</div>
-<div class="grid2" style="margin-top:8px">
-  <div class="field"><label>武器バフA %</label><div class="slider-row"><input type="range" id="wepBufA_s" min="0" max="100" value="0" step="1"><input type="number" id="wepBufA" value="0" min="0" max="100"></div></div>
-  <div class="field"><label>武器バフB %</label><div class="slider-row"><input type="range" id="wepBufB_s" min="0" max="100" value="0" step="1"><input type="number" id="wepBufB" value="0" min="0" max="100"></div></div>
-</div>
-
-<div class="divider"></div>
-
-<div class="section-title">攻撃側ステータス</div>
-<div class="grid3">
-  <div class="field"><label>ATK <span class="badge badge-str">STR自動</span></label><div class="slider-row"><input type="range" id="atk_s" min="0" max="100" value="0" step="1"><input type="number" id="atk" value="0" min="0" max="100"></div></div>
-  <div class="field"><label>IMP <span class="badge badge-str">STR</span></label><div class="slider-row"><input type="range" id="imp_s" min="0" max="100" value="0" step="1"><input type="number" id="imp" value="0" min="0" max="100"></div></div>
-  <div class="field"><label>CRIT <span class="badge badge-dex">DEX自動</span></label><div class="slider-row"><input type="range" id="crit_s" min="0" max="100" value="0" step="1"><input type="number" id="crit" value="0" min="0" max="100"></div></div>
-</div>
-<div class="grid3" style="margin-top:8px">
-  <div class="field"><label>CATK <span class="badge badge-int">INT自動</span></label><div class="slider-row"><input type="range" id="catk_s" min="0" max="100" value="0" step="1"><input type="number" id="catk" value="0" min="0" max="100"></div></div>
-  <div class="field"><label>ACC <span class="badge badge-str">STR</span></label><div class="slider-row"><input type="range" id="acc_s" min="0" max="100" value="0" step="1"><input type="number" id="acc" value="0" min="0" max="100"></div></div>
-  <div class="field"><label>PEN <span class="badge badge-dex">DEX</span></label><div class="slider-row"><input type="range" id="pen_s" min="0" max="100" value="0" step="1"><input type="number" id="pen" value="0" min="0" max="100"></div></div>
-</div>
-
-<div class="divider"></div>
-
-<div class="section-title">防御側ステータス（敵）</div>
-<div class="grid3">
-  <div class="field"><label>DEF <span class="badge badge-vit">VIT自動</span></label><div class="slider-row"><input type="range" id="def_s" min="0" max="100" value="0" step="1"><input type="number" id="def" value="0" min="0" max="100"></div></div>
-  <div class="field"><label>DET <span class="badge badge-vit">VIT</span></label><div class="slider-row"><input type="range" id="det_s" min="0" max="100" value="0" step="1"><input type="number" id="det" value="0" min="0" max="100"></div></div>
-  <div class="field"><label>EVD <span class="badge badge-dex">DEX</span></label><div class="slider-row"><input type="range" id="evd_s" min="0" max="100" value="0" step="1"><input type="number" id="evd" value="0" min="0" max="100"></div></div>
+<!-- 仕様説明 -->
+<div class="rule-box">
+  <div class="rule-title">ステータスの振り方</div>
+  <div class="rule-step">
+    <div class="rule-num">1</div>
+    <div class="rule-text">レベルアップごとに<strong>メインポイントを1獲得</strong>する</div>
+  </div>
+  <div class="rule-step">
+    <div class="rule-num">2</div>
+    <div class="rule-text">好きな<strong>メインステータス（STR/DEX/VIT/INT）に1振る</strong>と、そのメインの<strong>自動付与サブ2つに1ptずつ自動で付与</strong>される</div>
+  </div>
+  <div class="rule-step">
+    <div class="rule-num">3</div>
+    <div class="rule-text">さらに<strong>全サブステータスの中から好きな1つに1pt追加</strong>で振ることができる</div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#c93a3a"></div>STR自動付与</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3562b5"></div>DEX自動付与</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#c96e20"></div>VIT自動付与</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2d8a52"></div>INT自動付与</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ccc"></div>手動のみ</div>
+  </div>
 </div>
 
-<div class="divider"></div>
+<!-- メイン+サブ統合グリッド -->
+<div class="main-grid">
 
-<div id="results" class="results"></div>
+  <!-- STR -->
+  <div class="main-card str">
+    <div class="main-header">
+      <div class="main-top">
+        <span class="main-badge">STR</span>
+        <span class="main-title">力</span>
+      </div>
+      <div class="main-desc">攻撃・スタミナ系を強化する</div>
+    </div>
+    <div class="sub-list">
 
-<div class="btn-row">
-  <button class="btn-atk" onclick="attack(1)">攻撃！</button>
-  <button class="btn-10" onclick="attack(10)">10連攻撃</button>
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">ATK</span>
+          <span class="sub-name">攻撃力</span>
+          <span class="auto-pill">STR自動</span>
+        </div>
+        <div class="sub-desc str sub-desc-auto">与えるダメージを固定値で強化する</div>
+        <div class="formula">ダメージ + (ATK × 0.15)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">STA</span>
+          <span class="sub-name">スタミナ</span>
+          <span class="auto-pill">STR自動</span>
+        </div>
+        <div class="sub-desc str sub-desc-auto">最大スタミナ量を増加させる</div>
+        <div class="formula">最大スタミナ + (STA × 1)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">IMP</span>
+          <span class="sub-name">衝撃力</span>
+        </div>
+        <div class="sub-desc">与えるダメージを割合で強化する</div>
+        <div class="formula">ATK適用後 × (1 + IMP × 0.003)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">ACC</span>
+          <span class="sub-name">命中率</span>
+        </div>
+        <div class="sub-desc">相手の回避率を下げる</div>
+        <div class="formula">相手EVD減少 = ACC × 0.5%</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DEX -->
+  <div class="main-card dex">
+    <div class="main-header">
+      <div class="main-top">
+        <span class="main-badge">DEX</span>
+        <span class="main-title">敏捷</span>
+      </div>
+      <div class="main-desc">クリティカル・スーパー・回避系を強化する</div>
+    </div>
+    <div class="sub-list">
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">CRIT</span>
+          <span class="sub-name">クリティカル率</span>
+          <span class="auto-pill">DEX自動</span>
+        </div>
+        <div class="sub-desc dex sub-desc-auto">一定確率でダメージが増加する</div>
+        <div class="formula">クリ率 = 10% + (CRIT × 0.5%)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">TEN</span>
+          <span class="sub-name">不屈</span>
+          <span class="auto-pill">DEX自動</span>
+        </div>
+        <div class="sub-desc dex sub-desc-auto">スーパーの威力または持続時間を強化する</div>
+        <div class="formula">スーパー効果 + (TEN × 1%)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">PEN</span>
+          <span class="sub-name">貫通力</span>
+        </div>
+        <div class="sub-desc">相手のDEFを無効化し、シールドへのダメージを増加させる</div>
+        <div class="formula">DEF無効化量 = PEN × 1</div>
+        <div class="formula" style="margin-top:3px">シールドダメージ = PEN × 2%</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">EVD</span>
+          <span class="sub-name">回避率</span>
+        </div>
+        <div class="sub-desc">ダッシュ中かつ20m以上離れているとき、確率で攻撃を0ダメージにする</div>
+        <div class="formula">回避率 = EVD × 0.6%　※上限60%</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VIT -->
+  <div class="main-card vit">
+    <div class="main-header">
+      <div class="main-top">
+        <span class="main-badge">VIT</span>
+        <span class="main-title">生命力</span>
+      </div>
+      <div class="main-desc">シールド・防御・回避系を強化する</div>
+    </div>
+    <div class="sub-list">
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">SLD</span>
+          <span class="sub-name">シールド</span>
+          <span class="auto-pill">VIT自動</span>
+        </div>
+        <div class="sub-desc vit sub-desc-auto">最大シールドを増加させる</div>
+        <div class="formula">最大シールド + (SLD × 3)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">DEF</span>
+          <span class="sub-name">防御力</span>
+          <span class="auto-pill">VIT自動</span>
+        </div>
+        <div class="sub-desc vit sub-desc-auto">受けるダメージを軽減する。軽減できるダメージは元ダメージの40%まで</div>
+        <div class="formula">ダメージ − (DEF × 1.5)　※上限40%</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">DET</span>
+          <span class="sub-name">意志力</span>
+        </div>
+        <div class="sub-desc">DEFの一部をPENに無効化されなくする</div>
+        <div class="formula">PEN無効DEF = min(DET, DEF)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">PEVD</span>
+          <span class="sub-name">完全回避率</span>
+        </div>
+        <div class="sub-desc">ダッシュ中に確率で攻撃を0ダメージにする</div>
+        <div class="formula">完全回避率 = PEVD × 0.3%　※上限30%</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INT -->
+  <div class="main-card int">
+    <div class="main-header">
+      <div class="main-top">
+        <span class="main-badge">INT</span>
+        <span class="main-title">知性</span>
+      </div>
+      <div class="main-desc">クリダメ・回復・スキル・状態異常系を強化する</div>
+    </div>
+    <div class="sub-list">
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">CATK</span>
+          <span class="sub-name">クリティカルダメージ</span>
+          <span class="auto-pill">INT自動</span>
+        </div>
+        <div class="sub-desc int sub-desc-auto">クリティカル時の追加ダメージを強化</div>
+        <div class="formula">クリダメ増加 = 25% + (CATK × 0.4%)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">REC</span>
+          <span class="sub-name">回復力</span>
+          <span class="auto-pill">INT自動</span>
+        </div>
+        <div class="sub-desc int sub-desc-auto">被弾中でも継続してHPを回復</div>
+        <div class="formula">5秒ごとに (REC × 0.5) 回復　※小数切捨</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">MND</span>
+          <span class="sub-name">精神力</span>
+        </div>
+        <div class="sub-desc">状態異常ダメージと自動回復以外の回復量を強化する</div>
+        <div class="formula">状態異常ダメージ・回復量 + (MND × 2%)</div>
+      </div>
+
+      <div class="sub-item">
+        <div class="sub-header">
+          <span class="sub-badge">PIE</span>
+          <span class="sub-name">信仰心</span>
+        </div>
+        <div class="sub-desc">スキル・スーパーのクールダウンを短縮する</div>
+        <div class="formula">CD × (1 − PIE × 0.005)</div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
-<div class="log" id="logWrap" style="display:none">
-  <div class="log-header">攻撃ログ<span class="log-clear" onclick="clearLog()">クリア</span></div>
-  <div class="log-body" id="logBody"></div>
-  <div class="log-summary" id="logSummary"></div>
+<div style="margin-top:2rem;text-align:center">
+  <a href="calc.html" style="display:inline-block;background:#1a1a1a;color:#fff;padding:12px 32px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none">ダメージ計算機へ →</a>
 </div>
 
-<script>
-const ids = ['baseDmg','globalBuf','wepBufA','wepBufB','atk','imp','crit','catk','acc','pen','def','det','evd'];
-ids.forEach(id=>{
-  const num = document.getElementById(id);
-  const sld = document.getElementById(id+'_s');
-  if(!num||!sld) return;
-  num.addEventListener('input',()=>{sld.value=num.value;calc()});
-  sld.addEventListener('input',()=>{num.value=sld.value;calc()});
-});
-
-let logData=[], attackCount=0;
-
-function getVals(){
-  const g=id=>+document.getElementById(id).value||0;
-  return{base:g('baseDmg'),atk:g('atk'),imp:g('imp'),crit:g('crit'),catk:g('catk'),acc:g('acc'),pen:g('pen'),def:g('def'),det:g('det'),evd:g('evd'),gBuf:g('globalBuf')/100,wA:g('wepBufA')/100,wB:g('wepBufB')/100};
-}
-
-function simulate(v,randomize){
-  const randBase = randomize ? Math.floor(v.base*(0.9+Math.round(Math.random()*20)/100)) : v.base;
-  const critRate = Math.min(10+v.crit*0.5,100);
-  const evdRate  = Math.max(0,Math.min(v.evd*0.6,60)-v.acc*0.5);
-  const isCrit   = randomize ? Math.random()*100<critRate : false;
-  const isEvaded = randomize ? Math.random()*100<evdRate  : false;
-  const step1 = Math.floor(randBase+v.atk*0.15);
-  const impMult = 1+v.imp*0.003+v.gBuf+v.wA+v.wB;
-  const step2 = Math.floor(step1*impMult);
-  const critMult = isCrit?(1.25+v.catk*0.004):1.0;
-  const step3 = Math.floor(step2*critMult);
-  const penImmune=Math.min(v.det,v.def),penVuln=v.def-penImmune,penNeutral=Math.min(penVuln,v.pen),effDef=penVuln-penNeutral+penImmune;
-  const defReduct=Math.min(Math.floor(effDef*1.5),Math.floor(step3*0.4));
-  const finalDmg=isEvaded?0:Math.max(0,step3-defReduct);
-  return{base:randBase,finalDmg,isCrit,isEvaded,critRate,evdRate,effDef,defReduct,step3};
-}
-
-function calc(){
-  const v=getVals();
-  const r=simulate(v,false);
-  const critRate=Math.min(10+v.crit*0.5,100);
-  const evdRate=Math.max(0,Math.min(v.evd*0.6,60)-v.acc*0.5);
-  const reductPct=r.step3>0?Math.round((1-r.finalDmg/r.step3)*100):0;
-  const critDmg=Math.max(0,Math.floor(r.step2*(1.25+v.catk*0.004))-r.defReduct);
-  document.getElementById('results').innerHTML=`
-    <div class="metric"><div class="metric-label">期待ダメージ（基準値）</div><div class="metric-val">${r.finalDmg}</div><div class="metric-sub">軽減率 ${reductPct}%</div></div>
-    <div class="metric"><div class="metric-label">クリティカル率</div><div class="metric-val">${critRate.toFixed(1)}%</div><div class="metric-sub">クリ時ダメージ ${critDmg}</div></div>
-    <div class="metric"><div class="metric-label">実質回避率（EVD-ACC）</div><div class="metric-val">${evdRate.toFixed(1)}%</div><div class="metric-sub">EVD上限60%</div></div>
-    <div class="metric"><div class="metric-label">実質DEF（PEN後）</div><div class="metric-val">${r.effDef}</div><div class="metric-sub">DEF軽減 ${r.defReduct}</div></div>
-  `;
-}
-
-function attack(n){
-  const v=getVals();
-  const results=[];
-  for(let i=0;i<n;i++){attackCount++;results.push({no:attackCount,...simulate(v,true)});}
-  logData=[...results,...logData];
-  document.getElementById('logWrap').style.display='block';
-  const newRows=results.map(r=>{
-    const tag=r.isEvaded?`<span class="log-tag tag-evade">EVADE</span>`:r.isCrit?`<span class="log-tag tag-crit">CRIT</span>`:`<span class="log-tag tag-hit">HIT</span>`;
-    const col=r.isEvaded?'#2d8a52':r.isCrit?'#c96e20':'#1a1a1a';
-    return`<div class="log-row"><span class="log-num">${r.no}</span>${tag}<span class="log-dmg" style="color:${col}">${r.finalDmg}</span><span class="log-detail">素D ${r.base} → ${r.step3} → -${r.defReduct}</span></div>`;
-  }).join('');
-  document.getElementById('logBody').innerHTML=newRows+document.getElementById('logBody').innerHTML;
-  updateSummary();
-}
-
-function updateSummary(){
-  if(!logData.length) return;
-  const total=logData.reduce((s,r)=>s+r.finalDmg,0);
-  const avg=Math.round(total/logData.length);
-  const max=Math.max(...logData.map(r=>r.finalDmg));
-  const crits=logData.filter(r=>r.isCrit).length;
-  const evades=logData.filter(r=>r.isEvaded).length;
-  document.getElementById('logSummary').innerHTML=`<div>平均ダメージ<span>${avg}</span></div><div>最大ダメージ<span>${max}</span></div><div>クリ ${crits}回 / 回避 ${evades}回<span>${logData.length}回攻撃</span></div>`;
-}
-
-function clearLog(){
-  logData=[];attackCount=0;
-  document.getElementById('logBody').innerHTML='';
-  document.getElementById('logSummary').innerHTML='';
-  document.getElementById('logWrap').style.display='none';
-}
-
-calc();
-</script>
 </body>
 </html>
