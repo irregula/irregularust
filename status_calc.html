@@ -285,14 +285,14 @@ function update(){
   document.getElementById('ten_eff').textContent  = `スーパー効果 +${e.ten}%`;
   document.getElementById('pevd_eff').textContent = `完全回避率 ${Math.min(e.pevd*0.3,30).toFixed(1)}%`;
   document.getElementById('evd_eff').textContent  = `回避率 ${Math.min(e.evd*0.6,60).toFixed(1)}%`;
-  document.getElementById('sld_eff').textContent  = `最大シールド +${e.sld*3}`;
+  document.getElementById('sld_eff').textContent  = `最大シールド +${e.sld*2}`;
   document.getElementById('def_eff').textContent  = `ダメージ軽減 ${(e.def*1.5).toFixed(0)}（上限40%）`;
   document.getElementById('det_eff').textContent  = `PEN無効DEF ${e.det}`;
   document.getElementById('mnd_eff').textContent  = `状態異常・回復量 +${e.mnd*2}%`;
   document.getElementById('catk_eff').textContent = `クリダメ +${(25+e.catk*0.4).toFixed(1)}%`;
-  document.getElementById('rec_eff').textContent  = `5秒ごとに +${Math.floor(e.rec*0.5)} 回復`;
+  document.getElementById('rec_eff').textContent  = `5秒ごとに +${e.rec} 回復`;
   document.getElementById('pie_eff').textContent  = `CD短縮 ${(e.pie*0.5).toFixed(1)}%`;
-  document.getElementById('acc_eff').textContent  = `相手EVD -${(e.acc*0.5).toFixed(1)}%`;
+  document.getElementById('acc_eff').textContent  = `相手EVD -${e.acc}%`;
 
   document.getElementById('effectsGrid').innerHTML = [
     ['ATK', `ダメージ +${(e.atk*0.15).toFixed(2)}`],
@@ -303,11 +303,11 @@ function update(){
     ['PEN', `DEF無効化 ${e.pen} / +${e.pen*2}%`],
     ['EVD', `回避率 ${Math.min(e.evd*0.6,60).toFixed(1)}%`],
     ['PEVD', `完全回避率 ${Math.min(e.pevd*0.3,30).toFixed(1)}%`],
-    ['ACC', `相手EVD -${(e.acc*0.5).toFixed(1)}%`],
+    ['ACC', `相手EVD -${e.acc}%`],
     ['DEF', `軽減 ${(e.def*1.5).toFixed(0)}（上限40%）`],
     ['DET', `PEN無効DEF ${e.det}`],
-    ['SLD', `最大シールド +${e.sld*3}`],
-    ['REC', `5秒ごとに +${Math.floor(e.rec*0.5)} 回復`],
+    ['SLD', `最大シールド +${e.sld*2}`],
+    ['REC', `5秒ごとに +${e.rec} 回復`],
     ['MND', `状態異常・回復 +${e.mnd*2}%`],
     ['PIE', `CD短縮 ${(e.pie*0.5).toFixed(1)}%`],
     ['STA', `最大スタミナ +${e.sta}`],

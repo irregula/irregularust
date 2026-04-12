@@ -129,7 +129,7 @@ function getVals(){
 function simulate(v,randomize){
   const randBase = randomize ? Math.floor(v.base*(0.9+Math.round(Math.random()*20)/100)) : v.base;
   const critRate = Math.min(10+v.crit*0.5,100);
-  const evdRate  = Math.max(0,Math.min(v.evd*0.6,60)-v.acc*0.5);
+  const evdRate  = Math.max(0,Math.min(v.evd*0.6,60)-v.acc);
   const isCrit   = randomize ? Math.random()*100<critRate : false;
   const isEvaded = randomize ? Math.random()*100<evdRate  : false;
   const step1 = Math.floor(randBase+v.atk*0.15);
